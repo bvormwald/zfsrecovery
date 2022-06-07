@@ -1,0 +1,36 @@
+#boot from arch iso and start ssh
+systemctl start sshd.service
+passwd
+
+#ssh to it and make the system zfs ready
+curl -s https://eoli3n.github.io/archzfs/init | bash
+
+export DISK=/dev/disk/by-id/nvme-WDC_PC_SN730_SDBQNTY-512G-1001_201249807342
+export PATH_TO_DISK=$DISK-part2
+export PATH_TO_EFIDISK=$DISK-part1
+
+zpool import -d $PATH_TO_DISK -R /mnt zroot -N
+zfs load-key zroot/vault
+
+zfs mount zroot/vault/ROOT/default
+zfs mount -a
+zfs get mounted
+
+mount $PATH_TO_EFIDISK /mnt/boot
+
+swapon /dev/zvol/zroot/vault/swap
+
+arch-chroot /mnt
+
+cat /var/log/pacman.log
+cd /var/cache/pacman/pkg/
+pacman -U linux-5.13.13.arch1-1-x86_64.pkg.tar.zst linux-headers-5.13.13.arch1-1-x86_64.pkg.tar.zst
+
+exit
+
+swapoff -a
+umount -lf /mnt
+zfs unmount -a
+zpool export zroot
+
+reboot
