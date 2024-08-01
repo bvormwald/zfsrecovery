@@ -3,7 +3,7 @@ systemctl start sshd.service
 passwd
 
 #ssh to it and make the system zfs ready
-curl -s https://eoli3n.github.io/archzfs/init | bash
+https://raw.githubusercontent.com/eoli3n/archiso-zfs/master/init
 
 export DISK=/dev/disk/by-id/nvme-WDC_PC_SN730_SDBQNTY-512G-1001_201249807342
 export PATH_TO_DISK=$DISK-part2
